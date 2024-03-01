@@ -1,0 +1,54 @@
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+import joblib
+import numpy as np
+import nltk
+import sklearn
+import operator
+import requests
+import pandas as pd
+from sklearn.svm import SVR
+import joblib
+import numpy as np
+import os
+from sklearn.model_selection import train_test_split
+import random
+import spacy
+
+from sklearn.metrics import precision_score,recall_score,f1_score,accuracy_score
+
+
+
+folder_path = 'datasets_coursework1/bbc/tech1'
+
+import os
+
+import os
+
+folder_path = 'datasets_coursework1/bbc/tech1'
+nlp = spacy.load("en_core_web_sm")
+
+# input .txt , out put string without captitgal empty...
+def preProcessing(folder_path):
+    all_data = []
+    for file_name in os.listdir(folder_path):
+        if file_name.endswith('.txt'):
+            file_path = os.path.join(folder_path, file_name)
+            with open(file_path, 'r', encoding='utf-8') as file:
+                file_data = file.readlines()
+                # lowwer
+                file_data_cleaned = [line.strip().lower() for line in file_data if line.strip()]
+                # morphological restoration
+                file_data_processed = []
+                for line in file_data_cleaned:
+                    doc = nlp(line)
+                    sentence_tokens = []
+                    for token in doc:
+                        if not token.is_punct:
+                            sentence_tokens.append(token.lemma_.lower())
+                    file_data_processed.append(sentence_tokens)
+                all_data.extend(file_data_processed)
+    return all_data
+aa = preProcessing(folder_path)
+
+print(aa[:3])

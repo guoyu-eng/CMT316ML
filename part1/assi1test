@@ -1,0 +1,82 @@
+import joblib
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+import joblib
+import numpy as np
+import nltk
+import sklearn
+import operator
+import requests
+
+
+loaded_model = joblib.load('svm_model234.pkl')
+
+
+
+# read
+df = pd.read_csv('datasets_coursework1/real-state/test_full_Real-estate.csv')
+
+
+# input the test data
+selected_x_columns = ['X2 house age','X3 distance to the nearest MRT station','X4 number of convenience stores']
+selected_x_data = df[selected_x_columns]
+selected_x_data_float = selected_x_data.astype(float)
+np.set_printoptions(suppress=True)
+x_test = selected_x_data_float.values
+
+
+# the data result
+selected_y_columns = ['Y house price of unit area']
+selected_y_data = df[selected_y_columns]
+selected_y_data_float = selected_y_data.astype(float)
+y_test = selected_y_data_float.values
+
+
+def convert_label(price):
+    if price >= 30.0:
+        return 1.0  #  expensive
+    else:
+        return 0.0  # cheap
+
+
+y_test_labels = []
+for price in y_test:
+    label = convert_label(price)
+    y_test_labels.append(label)
+
+trainresult = loaded_model.predict(x_test)
+
+
+# print (loaded_model.predict(x_test))
+
+# actual true predicted true
+tp = []
+# actual false predicted true
+fp = []
+# actual true predicted false
+fn = []
+# actual false predicted false
+tn = []
+
+
+for i in range(len(y_test_labels)):
+    if y_test_labels[i] == 1 and trainresult[i] == 1:
+        tp.append(i)
+    elif y_test_labels[i] == 0 and trainresult[i] == 0:
+        tn.append(i)
+    elif y_test_labels[i] == 1 and trainresult[i] == 0:
+        fn.append(i)
+    elif y_test_labels[i] == 0 and trainresult[i] == 1:
+        fp.append(i)
+
+
+accuracy = (len(tp)+len(tn))/ (len(tn)+len(tp)+len(fn)+ len(fp))
+precision = len(tp) / (len(tp)+ len(fp))
+recall  = len(tp)/(len(tp)+ len(fn))
+
+f1 = (2 * precision * recall) /(recall+   precision)
+
+print( 'accuracy : ' + str(accuracy))
+print( 'precision : ' + str(precision))
+print( 'recall : ' + str(recall))
+print( 'f1 : ' + str(f1))

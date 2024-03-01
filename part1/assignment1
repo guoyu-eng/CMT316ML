@@ -1,0 +1,108 @@
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+import joblib
+import numpy as np
+import nltk
+import sklearn
+import operator
+import requests
+
+
+
+df = pd.read_csv('datasets_coursework1/real-state/train_full_Real-estate.csv')
+
+
+selected_x_columns = ['X2 house age', 'X3 distance to the nearest MRT station', 'X4 number of convenience stores']
+selected_x_data = df[selected_x_columns].astype(float)
+np.set_printoptions(suppress=True)
+x_train = selected_x_data.iloc[:300].values
+
+selected_y_columns = ['Y house price of unit area']
+selected_y_data = df[selected_y_columns].astype(float)
+y_train = selected_y_data.iloc[:300].values
+
+def convert_label(price):
+    if price >= 30.0:
+        return 1.0  #  expensive
+    else:
+        return 0.0  # cheap
+
+
+y_train_labels = []
+for price in y_train:
+    label = convert_label(price)
+    y_train_labels.append(label)
+
+svm_clf_diabetes=sklearn.svm.SVC(kernel="linear",gamma='auto') # Initialize the SVM model
+svm_clf_diabetes.fit(x_train,y_train_labels) # Train the SVM model
+
+joblib.dump(svm_clf_diabetes, 'svm_model234.pkl')
+
+
+
+
+
+
+loaded_model = joblib.load('svm_model234.pkl')
+
+
+
+# read
+df_test = pd.read_csv('datasets_coursework1/real-state/test_full_Real-estate.csv')
+
+# input the test data
+selected_x_columns_test = ['X2 house age','X3 distance to the nearest MRT station','X4 number of convenience stores']
+selected_x_data_test = df_test[selected_x_columns_test]
+selected_x_data_float_test = selected_x_data_test.astype(float)
+np.set_printoptions(suppress=True)
+x_test = selected_x_data_float_test.values
+
+# the data result
+selected_y_columns_test = ['Y house price of unit area']
+selected_y_data_test = df_test[selected_y_columns_test]
+selected_y_data_float_test = selected_y_data_test.astype(float)
+y_test = selected_y_data_float_test.values
+
+def convert_label_test(price):
+    if price >= 30.0:
+        return 1.0  #  expensive
+    else:
+        return 0.0  # cheap
+
+y_test_labels = []
+for price in y_test:
+    label = convert_label_test(price)
+    y_test_labels.append(label)
+
+trainresult = loaded_model.predict(x_test)
+# actual true predicted true
+tp = []
+# actual false predicted true
+fp = []
+# actual true predicted false
+fn = []
+# actual false predicted false
+tn = []
+
+for i in range(len(y_test_labels)):
+    if y_test_labels[i] == 1 and trainresult[i] == 1:
+        tp.append(i)
+    elif y_test_labels[i] == 0 and trainresult[i] == 0:
+        tn.append(i)
+    elif y_test_labels[i] == 1 and trainresult[i] == 0:
+        fn.append(i)
+    elif y_test_labels[i] == 0 and trainresult[i] == 1:
+        fp.append(i)
+
+accuracy = (len(tp)+len(tn))/ (len(tn)+len(tp)+len(fn)+ len(fp))
+precision = len(tp) / (len(tp)+ len(fp))
+recall  = len(tp)/(len(tp)+ len(fn))
+
+f1 = (2 * precision * recall) /(recall+   precision)
+
+print( 'accuracy : ' + str(accuracy))
+print( 'precision : ' + str(precision))
+print( 'recall : ' + str(recall))
+print( 'f1 : ' + str(f1))
+
+

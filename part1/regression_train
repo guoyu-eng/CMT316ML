@@ -1,0 +1,96 @@
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+import joblib
+import numpy as np
+import nltk
+import sklearn
+import operator
+import requests
+import pandas as pd
+from sklearn.svm import SVR
+import joblib
+import numpy as np
+
+# read
+df = pd.read_csv('datasets_coursework1/real-state/train_full_Real-estate.csv')
+
+
+
+selected_x_columns = ['X1 transaction date','X2 house age','X3 distance to the nearest MRT station','X4 number of convenience stores','X5 latitude','X6 longitude']
+selected_x_data = df[selected_x_columns]
+selected_x_data_float = selected_x_data.astype(float)
+np.set_printoptions(suppress=True)
+x_train = selected_x_data_float.iloc[:250].values
+
+
+
+selected_y_columns = ['Y house price of unit area']
+selected_y_data = df[selected_y_columns]
+selected_y_data_float = selected_y_data.astype(float)
+# y_train = selected_y_data_float.values
+
+y_train = selected_y_data.iloc[:250].values.ravel()
+
+# SVR regression
+svr_model = SVR(kernel='linear')
+svr_model.fit(x_train, y_train)
+
+
+joblib.dump(svr_model, 'svr_model234.pkl')
+
+
+
+
+
+
+loaded_model = joblib.load('svr_model234.pkl')
+
+
+
+# read
+df_test = pd.read_csv('datasets_coursework1/real-state/test_full_Real-estate.csv')
+
+
+# input the test data
+selected_x_columns_test = ['X1 transaction date','X2 house age','X3 distance to the nearest MRT station','X4 number of convenience stores','X5 latitude','X6 longitude']
+selected_x_data_test = df_test[selected_x_columns_test]
+selected_x_data_float_test = selected_x_data_test.astype(float)
+np.set_printoptions(suppress=True)
+x_test = selected_x_data_float_test.values
+
+
+# the data result
+selected_y_columns_test = ['Y house price of unit area']
+selected_y_data_test = df_test[selected_y_columns_test]
+selected_y_data_float_test = selected_y_data_test.astype(float)
+y_test_2d_test = selected_y_data_float_test.values
+y_test = y_test_2d_test.flatten()
+
+
+
+
+trainresult = loaded_model.predict(x_test)
+totalnumber = len(trainresult)
+
+
+
+difference = y_test - trainresult
+squared_difference = difference ** 2
+mse = np.mean(squared_difference)
+rmse = np.sqrt(mse)
+
+print('The rmse is : ')
+print(rmse)
+
+
+
+
+
+
+
+
+
+
+
+
+
