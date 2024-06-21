@@ -1,6 +1,6 @@
 # CMT316ML
 ## Overview
-
+71/100
 There are Two part of this project.The first part uses models of classification and regression to predict house prices, the second part deals with, preprocessing, dimensionality reduction, feature selection, develop set application, overfitting, and evaluation and discussion of model performance, with an additional accompanying comparison of the models (Random Forest), and a comparison and discussion of the performance of the random forest model and the vector machine model in this project.
 
 
